@@ -9,44 +9,87 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
   imports: [CommonModule, RouterModule],
   template: `
     <div class="home-container">
-      <!-- Hero Banner Principal -->
-      <section class="hero-banner">
-        <div class="banner-content">
-          <div class="banner-text">
-            <h1 class="banner-title">
-              Tudo que você precisa
-              <span class="highlight">em um só lugar</span>
-            </h1>
-            <p class="banner-subtitle">
-              Milhares de produtos com entrega rápida e preços incríveis
-            </p>
+      <!-- Header com Banner Principal -->
+      <header class="main-header">
+        <div class="header-top">
+          <div class="container">
+            <div class="logo-section">
+              <a routerLink="/" class="logo">
+                <span class="logo-icon">🛍️</span>
+                <span class="logo-text">LojaDigital</span>
+              </a>
+            </div>
+
             <div class="search-section">
-              <div class="search-box">
+              <div class="search-container">
                 <input
                   type="text"
                   placeholder="Buscar produtos, marcas e muito mais..."
                   class="search-input"
                 >
-                <button class="search-btn">
+                <button class="search-button">
                   <span class="search-icon">🔍</span>
                 </button>
               </div>
             </div>
+
+            <div class="user-actions">
+              <a routerLink="/login" class="nav-link">
+                <span class="nav-icon">👤</span>
+                <span class="nav-text">Entrar</span>
+              </a>
+              <a routerLink="/cart" class="nav-link cart-link" *ngIf="quantidadeItens > 0">
+                <span class="nav-icon">🛒</span>
+                <span class="nav-text">Carrinho</span>
+                <span class="cart-badge">{{ quantidadeItens }}</span>
+              </a>
+            </div>
           </div>
-          <div class="banner-visual">
-            <div class="floating-products">
-              <div class="product-card" *ngFor="let product of featuredProducts"
-                   [style.animation-delay]="product.delay">
-                <img [src]="product.image" [alt]="product.name" class="product-img">
-                <div class="product-info">
-                  <span class="product-price">{{ product.price }}</span>
-                  <span class="product-name">{{ product.name }}</span>
+        </div>
+
+        <!-- Banner Hero -->
+        <div class="hero-banner">
+          <div class="container">
+            <div class="hero-content">
+              <div class="hero-text">
+                <h1 class="hero-title">
+                  As melhores <span class="highlight">ofertas</span>
+                  você encontra aqui!
+                </h1>
+                <p class="hero-subtitle">
+                  Frete grátis em milhares de produtos • Parcele em até 12x • Devolução grátis
+                </p>
+                <div class="hero-actions">
+                  <a routerLink="/catalog" class="btn btn-primary">
+                    Ver Ofertas
+                    <span class="btn-arrow">→</span>
+                  </a>
+                  <a routerLink="/catalog" class="btn btn-secondary">
+                    Categorias
+                  </a>
+                </div>
+              </div>
+              <div class="hero-visual">
+                <div class="floating-card card-1">
+                  <div class="card-icon">📱</div>
+                  <h4>Celulares</h4>
+                  <p>Até 40% OFF</p>
+                </div>
+                <div class="floating-card card-2">
+                  <div class="card-icon">💻</div>
+                  <h4>Eletrônicos</h4>
+                  <p>Ofertas especiais</p>
+                </div>
+                <div class="floating-card card-3">
+                  <div class="card-icon">🎧</div>
+                  <h4>Áudio</h4>
+                  <p>Frete grátis</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </header>
 
       <!-- Categorias Populares -->
       <section class="categories-section">
@@ -55,7 +98,6 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
           <div class="categories-grid">
             <a *ngFor="let category of categories"
                [routerLink]="['/catalog']"
-               [queryParams]="{categoria: category.name}"
                class="category-card">
               <div class="category-icon">{{ category.icon }}</div>
               <span class="category-name">{{ category.name }}</span>
@@ -68,26 +110,39 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
       <section class="deals-section">
         <div class="container">
           <div class="section-header">
-            <h2 class="section-title">Ofertas da semana</h2>
-            <a routerLink="/catalog" class="see-all">Ver todos</a>
+            <h2 class="section-title">Ofertas imperdíveis</h2>
+            <a routerLink="/catalog" class="see-all-link">
+              Ver todas
+              <span class="link-arrow">→</span>
+            </a>
           </div>
           <div class="deals-grid">
-            <div *ngFor="let deal of deals" class="deal-card">
-              <div class="deal-badge">Oferta</div>
-              <img [src]="deal.image" [alt]="deal.name" class="deal-img">
-              <div class="deal-info">
+            <div *ngFor="let deal of deals; let i = index"
+                 class="deal-card"
+                 [class.featured]="i === 0">
+              <div class="deal-badge" *ngIf="deal.discount">{{ deal.discount }}</div>
+              <div class="deal-image">
+                <img [src]="deal.image" [alt]="deal.name">
+              </div>
+              <div class="deal-content">
                 <h3 class="deal-name">{{ deal.name }}</h3>
-                <div class="deal-price">
+                <div class="deal-prices">
                   <span class="current-price">{{ deal.currentPrice }}</span>
-                  <span class="original-price">{{ deal.originalPrice }}</span>
-                  <span class="discount">{{ deal.discount }}</span>
+                  <span class="original-price" *ngIf="deal.originalPrice">
+                    {{ deal.originalPrice }}
+                  </span>
                 </div>
-                <div class="deal-shipping">
-                  <span class="free-shipping">Frete grátis</span>
+                <div class="deal-shipping" *ngIf="deal.freeShipping">
+                  <span class="shipping-badge">Frete grátis</span>
                 </div>
-                <button class="add-to-cart-btn" (click)="addToCart(deal)">
-                  🛒 Comprar
-                </button>
+                <div class="deal-actions">
+                  <button class="buy-btn" (click)="addToCart(deal)">
+                    Comprar agora
+                  </button>
+                  <button class="cart-btn" (click)="addToCart(deal)">
+                    🛒
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -98,33 +153,47 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
       <section class="benefits-section">
         <div class="container">
           <div class="benefits-grid">
-            <div class="benefit-item">
+            <div class="benefit-card">
               <div class="benefit-icon">🚚</div>
-              <div class="benefit-text">
-                <strong>Frete grátis</strong>
-                <span>Em compras acima de R$ 79</span>
+              <div class="benefit-content">
+                <h3>Frete grátis</h3>
+                <p>Em compras acima de R$ 79</p>
               </div>
             </div>
-            <div class="benefit-item">
+            <div class="benefit-card">
               <div class="benefit-icon">💳</div>
-              <div class="benefit-text">
-                <strong>Parcele em até 12x</strong>
-                <span>No cartão de crédito</span>
+              <div class="benefit-content">
+                <h3>Parcele sem juros</h3>
+                <p>Em até 12x no cartão</p>
               </div>
             </div>
-            <div class="benefit-item">
+            <div class="benefit-card">
               <div class="benefit-icon">🛡️</div>
-              <div class="benefit-text">
-                <strong>Compra segura</strong>
-                <span>Seus dados protegidos</span>
+              <div class="benefit-content">
+                <h3>Compra segura</h3>
+                <p>Seus dados protegidos</p>
               </div>
             </div>
-            <div class="benefit-item">
+            <div class="benefit-card">
               <div class="benefit-icon">↩️</div>
-              <div class="benefit-text">
-                <strong>Devolução grátis</strong>
-                <span>Em até 30 dias</span>
+              <div class="benefit-content">
+                <h3>Devolução fácil</h3>
+                <p>Primeira troca grátis</p>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Newsletter -->
+      <section class="newsletter-section">
+        <div class="container">
+          <div class="newsletter-content">
+            <h2>Não perca as melhores ofertas!</h2>
+            <p>Cadastre-se e receba promoções exclusivas</p>
+            <div class="newsletter-form">
+              <input type="email" placeholder="Seu e-mail" class="email-input">
+              <button class="subscribe-btn">Cadastrar</button>
             </div>
           </div>
         </div>
@@ -134,140 +203,19 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
   styles: [`
     .home-container {
       min-height: 100vh;
+      background: #f5f5f5;
     }
 
-    /* Hero Banner */
-    .hero-banner {
-      background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
-      padding: 3rem 0;
-      border-bottom: 1px solid #e6e6e6;
-    }
-
-    .banner-content {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 2rem;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4rem;
-      align-items: center;
-    }
-
-    .banner-title {
-      font-size: 3rem;
-      font-weight: 700;
-      line-height: 1.1;
-      margin-bottom: 1rem;
-      color: #2d2d2d;
-    }
-
-    .highlight {
-      color: #2968c8;
-    }
-
-    .banner-subtitle {
-      font-size: 1.25rem;
-      color: #666;
-      margin-bottom: 2rem;
-    }
-
-    .search-box {
-      display: flex;
-      max-width: 500px;
-      background: white;
-      border: 2px solid #2968c8;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    .search-input {
-      flex: 1;
-      padding: 1rem;
-      border: none;
-      outline: none;
-      font-size: 1rem;
-    }
-
-    .search-btn {
-      background: #2968c8;
-      border: none;
-      padding: 1rem 1.5rem;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .search-btn:hover {
-      background: #1e5bb7;
-    }
-
-    .search-icon {
+    /* Header */
+    .main-header {
+      background: linear-gradient(135deg, #2968c8 0%, #1e5bb7 100%);
       color: white;
-      font-size: 1.2rem;
     }
 
-    .floating-products {
-      position: relative;
-      height: 300px;
-    }
-
-    .product-card {
-      position: absolute;
-      background: white;
-      border-radius: 8px;
-      padding: 1rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      border: 1px solid #e6e6e6;
-      animation: float 3s ease-in-out infinite;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      max-width: 250px;
-    }
-
-    .product-card:nth-child(1) {
-      top: 20px;
-      left: 0;
-    }
-
-    .product-card:nth-child(2) {
-      top: 120px;
-      right: 0;
-      animation-delay: 1s !important;
-    }
-
-    .product-card:nth-child(3) {
-      bottom: 20px;
-      left: 50px;
-      animation-delay: 2s !important;
-    }
-
-    .product-img {
-      width: 60px;
-      height: 60px;
-      object-fit: cover;
-      border-radius: 4px;
-    }
-
-    .product-info {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .product-price {
-      font-weight: 700;
-      color: #2d2d2d;
-      font-size: 1.1rem;
-    }
-
-    .product-name {
-      color: #666;
-      font-size: 0.9rem;
-    }
-
-    /* Categorias */
-    .categories-section {
-      padding: 4rem 0;
-      background: white;
+    .header-top {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 1rem 0;
     }
 
     .container {
@@ -276,16 +224,259 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
       padding: 0 2rem;
     }
 
-    .section-title {
+    .header-top .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+
+    .logo-section {
+      flex-shrink: 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      color: white;
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+
+    .logo-icon {
       font-size: 2rem;
+    }
+
+    .search-section {
+      flex: 1;
+      max-width: 600px;
+    }
+
+    .search-container {
+      display: flex;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: none;
+      outline: none;
+      font-size: 1rem;
+      color: #333;
+    }
+
+    .search-button {
+      background: #e0e0e0;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .search-button:hover {
+      background: #d0d0d0;
+    }
+
+    .user-actions {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.3s;
+      position: relative;
+    }
+
+    .nav-link:hover {
+      opacity: 0.8;
+    }
+
+    .cart-link {
+      position: relative;
+    }
+
+    .cart-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #ff4444;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-weight: 600;
+    }
+
+    /* Hero Banner */
+    .hero-banner {
+      padding: 4rem 0;
+    }
+
+    .hero-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .hero-title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+
+    .highlight {
+      background: linear-gradient(135deg, #ffd700, #ff6b6b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-subtitle {
+      font-size: 1.25rem;
+      opacity: 0.9;
+      margin-bottom: 2.5rem;
+      line-height: 1.6;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .btn-primary {
+      background: white;
+      color: #2968c8;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(255,255,255,0.2);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: white;
+      border-color: rgba(255,255,255,0.3);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: white;
+    }
+
+    .btn-arrow {
+      transition: transform 0.3s ease;
+    }
+
+    .btn:hover .btn-arrow {
+      transform: translateX(4px);
+    }
+
+    .hero-visual {
+      position: relative;
+      height: 300px;
+    }
+
+    .floating-card {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 1.5rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      text-align: center;
+      transition: all 0.3s ease;
+      color: #333;
+    }
+
+    .floating-card:hover {
+      transform: translateY(-10px) scale(1.05);
+    }
+
+    .card-1 {
+      top: 20%;
+      left: 10%;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .card-2 {
+      top: 50%;
+      right: 10%;
+      animation: float 3s ease-in-out infinite 1s;
+    }
+
+    .card-3 {
+      bottom: 20%;
+      left: 30%;
+      animation: float 3s ease-in-out infinite 2s;
+    }
+
+    .card-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .floating-card h4 {
+      margin: 0 0 0.5rem 0;
+      font-weight: 600;
+    }
+
+    .floating-card p {
+      margin: 0;
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+
+    /* Categorias */
+    .categories-section {
+      padding: 4rem 0;
+      background: white;
+    }
+
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 700;
       margin-bottom: 2rem;
+      text-align: center;
       color: #2d2d2d;
     }
 
     .categories-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 1.5rem;
     }
 
@@ -293,29 +484,29 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 1.5rem 1rem;
+      padding: 2rem 1rem;
       background: #f8f9fa;
-      border-radius: 8px;
+      border-radius: 12px;
       text-decoration: none;
       color: #2d2d2d;
       transition: all 0.3s ease;
-      border: 1px solid transparent;
+      border: 2px solid transparent;
     }
 
     .category-card:hover {
       background: white;
       border-color: #2968c8;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(41, 104, 200, 0.1);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(41, 104, 200, 0.15);
     }
 
     .category-icon {
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
     }
 
     .category-name {
-      font-weight: 500;
+      font-weight: 600;
       text-align: center;
     }
 
@@ -329,73 +520,107 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2rem;
+      margin-bottom: 3rem;
     }
 
-    .see-all {
+    .see-all-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
       color: #2968c8;
       text-decoration: none;
-      font-weight: 500;
+      font-weight: 600;
+      transition: gap 0.3s ease;
     }
 
-    .see-all:hover {
-      text-decoration: underline;
+    .see-all-link:hover {
+      gap: 0.75rem;
+    }
+
+    .link-arrow {
+      transition: transform 0.3s ease;
+    }
+
+    .see-all-link:hover .link-arrow {
+      transform: translateX(4px);
     }
 
     .deals-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 2rem;
     }
 
     .deal-card {
       background: white;
-      border-radius: 8px;
+      border-radius: 16px;
       padding: 1.5rem;
       position: relative;
-      border: 1px solid #e6e6e6;
+      border: 1px solid #e8e8e8;
       transition: all 0.3s ease;
     }
 
     .deal-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      transform: translateY(-8px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+    }
+
+    .deal-card.featured {
+      grid-column: span 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: center;
     }
 
     .deal-badge {
       position: absolute;
       top: 1rem;
       left: 1rem;
-      background: #ff4444;
+      background: linear-gradient(135deg, #ff6b6b, #ff4444);
       color: white;
-      padding: 0.25rem 0.75rem;
-      border-radius: 4px;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
       font-size: 0.8rem;
-      font-weight: 600;
+      font-weight: 700;
+      z-index: 2;
     }
 
-    .deal-img {
-      width: 100%;
-      height: 200px;
-      object-fit: contain;
+    .deal-image {
+      text-align: center;
       margin-bottom: 1rem;
     }
 
+    .deal-image img {
+      width: 100%;
+      height: 200px;
+      object-fit: contain;
+      transition: transform 0.3s ease;
+    }
+
+    .deal-card:hover .deal-image img {
+      transform: scale(1.05);
+    }
+
+    .deal-content {
+      flex: 1;
+    }
+
     .deal-name {
-      font-size: 1rem;
-      font-weight: 500;
+      font-size: 1.1rem;
+      font-weight: 600;
       margin-bottom: 1rem;
       color: #2d2d2d;
       line-height: 1.4;
     }
 
-    .deal-price {
+    .deal-prices {
       margin-bottom: 1rem;
     }
 
     .current-price {
       font-size: 1.5rem;
-      font-weight: 700;
+      font-weight: 800;
       color: #2d2d2d;
       display: block;
     }
@@ -404,49 +629,61 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
       font-size: 1rem;
       color: #999;
       text-decoration: line-through;
-      margin-right: 0.5rem;
     }
 
-    .discount {
+    .deal-shipping {
+      margin-bottom: 1.5rem;
+    }
+
+    .shipping-badge {
       background: #00a650;
       color: white;
-      padding: 0.2rem 0.5rem;
+      padding: 0.4rem 0.8rem;
       border-radius: 4px;
       font-size: 0.8rem;
       font-weight: 600;
     }
 
-    .deal-shipping {
-      margin-bottom: 1rem;
+    .deal-actions {
+      display: flex;
+      gap: 0.75rem;
     }
 
-    .free-shipping {
-      color: #00a650;
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-
-    .add-to-cart-btn {
-      width: 100%;
+    .buy-btn {
+      flex: 1;
       background: #2968c8;
       color: white;
       border: none;
-      padding: 0.75rem;
-      border-radius: 4px;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: all 0.3s ease;
     }
 
-    .add-to-cart-btn:hover {
+    .buy-btn:hover {
       background: #1e5bb7;
+      transform: translateY(-1px);
+    }
+
+    .cart-btn {
+      background: #f8f9fa;
+      border: 1px solid #e8e8e8;
+      padding: 0.75rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .cart-btn:hover {
+      background: #e9ecef;
+      transform: scale(1.1);
     }
 
     /* Benefícios */
     .benefits-section {
-      padding: 3rem 0;
+      padding: 4rem 0;
       background: white;
-      border-top: 1px solid #e6e6e6;
     }
 
     .benefits-grid {
@@ -455,29 +692,89 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
       gap: 2rem;
     }
 
-    .benefit-item {
+    .benefit-card {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 1.5rem;
+      padding: 2rem;
+      background: #f8f9fa;
+      border-radius: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .benefit-card:hover {
+      background: white;
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
     }
 
     .benefit-icon {
-      font-size: 2rem;
+      font-size: 3rem;
+      flex-shrink: 0;
     }
 
-    .benefit-text {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .benefit-text strong {
-      color: #2d2d2d;
+    .benefit-content h3 {
+      margin: 0 0 0.5rem 0;
       font-weight: 600;
+      color: #2d2d2d;
     }
 
-    .benefit-text span {
+    .benefit-content p {
+      margin: 0;
       color: #666;
-      font-size: 0.9rem;
+    }
+
+    /* Newsletter */
+    .newsletter-section {
+      padding: 4rem 0;
+      background: linear-gradient(135deg, #2968c8 0%, #1e5bb7 100%);
+      color: white;
+      text-align: center;
+    }
+
+    .newsletter-content h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .newsletter-content p {
+      font-size: 1.25rem;
+      opacity: 0.9;
+      margin-bottom: 2rem;
+    }
+
+    .newsletter-form {
+      display: flex;
+      max-width: 400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+
+    .email-input {
+      flex: 1;
+      padding: 1rem;
+      border: none;
+      outline: none;
+      font-size: 1rem;
+      color: #333;
+    }
+
+    .subscribe-btn {
+      background: #00a650;
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .subscribe-btn:hover {
+      background: #008c45;
     }
 
     /* Animações */
@@ -486,55 +783,77 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
         transform: translateY(0px);
       }
       50% {
-        transform: translateY(-10px);
+        transform: translateY(-20px);
       }
     }
 
     /* Responsivo */
     @media (max-width: 768px) {
-      .banner-content {
+      .header-top .container {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .search-section {
+        max-width: 100%;
+      }
+
+      .hero-content {
         grid-template-columns: 1fr;
         gap: 2rem;
         text-align: center;
       }
 
-      .banner-title {
-        font-size: 2rem;
+      .hero-title {
+        font-size: 2.5rem;
       }
 
-      .search-box {
-        max-width: 100%;
+      .hero-actions {
+        justify-content: center;
+        flex-wrap: wrap;
       }
 
-      .floating-products {
+      .hero-visual {
         height: 200px;
       }
 
-      .product-card {
-        max-width: 200px;
-        padding: 0.75rem;
+      .floating-card {
+        padding: 1rem;
+      }
+
+      .deal-card.featured {
+        grid-column: span 1;
+        grid-template-columns: 1fr;
       }
 
       .categories-grid {
         grid-template-columns: repeat(3, 1fr);
       }
 
-      .deals-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
       .benefits-grid {
         grid-template-columns: 1fr;
+      }
+
+      .newsletter-form {
+        flex-direction: column;
+      }
+
+      .email-input, .subscribe-btn {
+        width: 100%;
       }
     }
 
     @media (max-width: 480px) {
+      .categories-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
       .deals-grid {
         grid-template-columns: 1fr;
       }
 
-      .categories-grid {
-        grid-template-columns: repeat(2, 1fr);
+      .section-title {
+        font-size: 2rem;
       }
     }
   `]
@@ -542,26 +861,13 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
 export class HomeComponent {
   private carrinhoService = inject(CarrinhoService);
 
-  featuredProducts = [
-    {
-      name: 'Smartphone',
-      price: 'R$ 1.299',
-      image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150',
-      delay: '0s'
-    },
-    {
-      name: 'Fone Bluetooth',
-      price: 'R$ 299',
-      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=150',
-      delay: '1s'
-    },
-    {
-      name: 'Notebook',
-      price: 'R$ 4.599',
-      image: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=150',
-      delay: '2s'
-    }
-  ];
+  quantidadeItens = 0;
+
+  constructor() {
+    this.carrinhoService.carrinho$.subscribe(() => {
+      this.quantidadeItens = this.carrinhoService.obterQuantidadeTotal();
+    });
+  }
 
   categories = [
     { name: 'Celulares', icon: '📱' },
@@ -576,37 +882,40 @@ export class HomeComponent {
 
   deals = [
     {
-      name: 'Smartphone Android 128GB',
+      name: 'Smartphone Android 128GB - Tela 6.7" - Câmera Tripla 48MP',
       currentPrice: 'R$ 1.299',
       originalPrice: 'R$ 1.599',
       discount: '19% OFF',
-      image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300'
+      freeShipping: true,
+      image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400'
     },
     {
-      name: 'Fone Bluetooth Cancelamento de Ruído',
+      name: 'Fone Bluetooth Cancelamento de Ruído Ativo - 30h Bateria',
       currentPrice: 'R$ 299',
       originalPrice: 'R$ 399',
       discount: '25% OFF',
-      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300'
+      freeShipping: true,
+      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400'
     },
     {
-      name: 'Notebook Gamer RTX 3050',
+      name: 'Notebook Gamer RTX 3050 - 16GB RAM - SSD 512GB',
       currentPrice: 'R$ 4.599',
       originalPrice: 'R$ 5.199',
       discount: '12% OFF',
-      image: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=300'
+      freeShipping: true,
+      image: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400'
     },
     {
-      name: 'Smart TV 55" 4K',
+      name: 'Smart TV 55" 4K UHD - Android TV - 3 HDMI',
       currentPrice: 'R$ 2.399',
       originalPrice: 'R$ 2.899',
       discount: '17% OFF',
-      image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=300'
+      freeShipping: true,
+      image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=400'
     }
   ];
 
   addToCart(product: any): void {
-    // Simulação de adição ao carrinho
     alert(`${product.name} adicionado ao carrinho!`);
   }
 }
