@@ -1,4 +1,4 @@
-Loja Digital Frontend
+Loja Digital 
 Frontend Angular para sistema de e-commerce desenvolvido com Angular 17+ e boas práticas de desenvolvimento.
 
 🚀 Funcionalidades
