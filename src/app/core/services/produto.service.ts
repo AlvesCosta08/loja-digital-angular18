@@ -1,25 +1,35 @@
+// src/app/core/services/produto.service.ts
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { Produto } from '../models'; // ✅ Importa do models.ts
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { Produto } from '../models';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class ProdutoService {
-  private produtos: Produto[] = [ /* ... */ ];
+  private apiUrl = `${environment.apiUrl}/produtos`;
 
-  listar(): Observable<Produto[]> {
-    return of(this.produtos);
+  constructor(private http: HttpClient) { }
+
+  getProdutos(): Observable<Produto[]> {
+    return this.http.get<Produto[]>(this.apiUrl);
   }
 
-  criar(dto: Omit<Produto, 'id'>): Observable<Produto> {
-    const novo: Produto = { id: Date.now(), ...dto };
-    this.produtos.push(novo);
-    return of(novo);
+  getProduto(id: number): Observable<Produto> {
+    return this.http.get<Produto>(`${this.apiUrl}/${id}`);
   }
 
-  criarComArquivo(formData: FormData): Observable<Produto> {
-    const nome = formData.get('nome') as string;
-    const descricao = formData.get('descricao') as string;
-    const preco = parseFloat(formData.get('preco') as string);
-    return this.criar({ nome, descricao, preco });
+  criarProduto(produto: Produto): Observable<Produto> {
+    return this.http.post<Produto>(this.apiUrl, produto);
+  }
+
+  atualizarProduto(id: number, produto: Produto): Observable<Produto> {
+    return this.http.put<Produto>(`${this.apiUrl}/${id}`, produto);
+  }
+
+  deletarProduto(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

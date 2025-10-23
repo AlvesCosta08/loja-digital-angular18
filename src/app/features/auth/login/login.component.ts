@@ -1,83 +1,64 @@
 import { Component } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [CommonModule, RouterModule],
   template: `
-    <div class="auth-container">
-      <h2>Login</h2>
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <input formControlName="email" placeholder="Email" type="email" />
-        <input formControlName="password" placeholder="Senha" type="password" />
-        <button type="submit" [disabled]="loginForm.invalid">Entrar</button>
-        <p><a routerLink="/register">Ainda não tem conta? Cadastre-se</a></p>
-      </form>
+    <div class="login-container">
+      <div class="login-card">
+        <h2>Login</h2>
+        <form>
+          <div class="form-group">
+            <label>Email:</label>
+            <input type="email" placeholder="Seu email">
+          </div>
+          <div class="form-group">
+            <label>Senha:</label>
+            <input type="password" placeholder="Sua senha">
+          </div>
+          <button type="submit" class="btn btn-primary">Entrar</button>
+          <p>Não tem conta? <a routerLink="/register">Registre-se</a></p>
+        </form>
+      </div>
     </div>
   `,
   styles: [`
-    .auth-container {
-      max-width: 400px;
-      margin: 3rem auto;
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 60vh;
       padding: 2rem;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      background: white;
     }
-    h2 { text-align: center; margin-bottom: 1.5rem; }
+
+    .login-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
     input {
       width: 100%;
-      padding: 10px;
-      margin-bottom: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 16px;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 0.5rem;
     }
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #1976d2;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-    p { text-align: center; margin-top: 1rem; }
-    a { color: #1976d2; text-decoration: none; }
   `]
 })
-export class LoginComponent {
-  loginForm: any;
-
-  constructor(
-    private fb: FormBuilder,
-    private auth: AuthService,
-    private router: Router
-  ) {
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
-    });
-  }
-
-  onSubmit() {
-    if (this.loginForm.valid) {
-      const { email, password } = this.loginForm.value;
-      this.auth.login(email!, password!).subscribe(success => {
-        if (success) {
-          this.router.navigate(['/produtos']);
-        } else {
-          alert('Credenciais inválidas');
-        }
-      });
-    }
-  }
-}
+export class LoginComponent { }

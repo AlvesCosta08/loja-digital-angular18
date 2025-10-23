@@ -1,24 +1,41 @@
 // src/app/core/services/pedido.service.ts
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { ItemPedido, Pedido } from '../models'; // ✅ Importa do models.ts
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { Pedido, ItemPedido } from '../models';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class PedidoService {
-  private pedidos: Pedido[] = [];
+  private apiUrl = `${environment.apiUrl}/pedidos`;
 
-  criar(itens: ItemPedido[]): Observable<Pedido> {
-    const novoPedido: Pedido = {
-      id: Date.now(),
-      data: new Date().toISOString().split('T')[0],
-      status: 'PENDENTE',
-      itens
-    };
-    this.pedidos.push(novoPedido);
-    return of(novoPedido);
+  constructor(private http: HttpClient) { }
+
+  criarPedido(pedido: Pedido): Observable<Pedido> {
+    return this.http.post<Pedido>(this.apiUrl, pedido);
   }
 
-  listar(): Observable<Pedido[]> {
-    return of(this.pedidos);
+  getPedidosUsuario(): Observable<Pedido[]> {
+    return this.http.get<Pedido[]>(`${this.apiUrl}/usuario`);
+  }
+
+  getPedido(id: number): Observable<Pedido> {
+    return this.http.get<Pedido>(`${this.apiUrl}/${id}`);
+  }
+
+  converterCarrinhoParaPedido(itensCarrinho: any[]): Pedido {
+    const itensPedido: ItemPedido[] = itensCarrinho.map(item => ({
+      produtoId: item.produtoId,
+      quantidade: item.quantidade,
+      precoUnitario: item.precoUnitario
+    }));
+
+    return {
+      itens: itensPedido,
+      total: itensCarrinho.reduce((total: number, item: any) => total + (item.precoUnitario * item.quantidade), 0),
+      status: 'PENDENTE'
+    };
   }
 }
