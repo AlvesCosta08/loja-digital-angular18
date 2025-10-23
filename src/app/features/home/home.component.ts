@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CarrinhoService } from '../../core/services/carrinho.service';
+import { Produto } from '../../core/models';
 
 @Component({
   selector: 'app-home',
@@ -9,10 +10,11 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
   imports: [CommonModule, RouterModule],
   template: `
     <div class="home-container">
-      <!-- Header com Banner Principal -->
+      <!-- Header Principal Único -->
       <header class="main-header">
-        <div class="header-top">
-          <div class="container">
+        <div class="container">
+          <!-- Logo e Navegação -->
+          <div class="header-content">
             <div class="logo-section">
               <a routerLink="/" class="logo">
                 <span class="logo-icon">🛍️</span>
@@ -20,6 +22,7 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
               </a>
             </div>
 
+            <!-- Barra de Pesquisa -->
             <div class="search-section">
               <div class="search-container">
                 <input
@@ -33,17 +36,22 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
               </div>
             </div>
 
-            <div class="user-actions">
+            <!-- Menu Principal -->
+            <nav class="main-nav">
+              <a routerLink="/products" class="nav-link">
+                <span class="nav-text">Produtos</span>
+              </a>
               <a routerLink="/login" class="nav-link">
-                <span class="nav-icon">👤</span>
-                <span class="nav-text">Entrar</span>
+                <span class="nav-text">Login</span>
               </a>
-              <a routerLink="/cart" class="nav-link cart-link" *ngIf="quantidadeItens > 0">
+              <a routerLink="/register" class="nav-link">
+                <span class="nav-text">Registrar</span>
+              </a>
+              <a routerLink="/cart" class="nav-link cart-link">
                 <span class="nav-icon">🛒</span>
-                <span class="nav-text">Carrinho</span>
-                <span class="cart-badge">{{ quantidadeItens }}</span>
+                <span class="cart-badge" *ngIf="quantidadeItens > 0">{{ quantidadeItens }}</span>
               </a>
-            </div>
+            </nav>
           </div>
         </div>
 
@@ -53,8 +61,7 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
             <div class="hero-content">
               <div class="hero-text">
                 <h1 class="hero-title">
-                  As melhores <span class="highlight">ofertas</span>
-                  você encontra aqui!
+                  As melhores <span class="highlight">ofertas</span> você encontra aqui!
                 </h1>
                 <p class="hero-subtitle">
                   Frete grátis em milhares de produtos • Parcele em até 12x • Devolução grátis
@@ -64,7 +71,7 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
                     Ver Ofertas
                     <span class="btn-arrow">→</span>
                   </a>
-                  <a routerLink="/catalog" class="btn btn-secondary">
+                  <a routerLink="/categories" class="btn btn-secondary">
                     Categorias
                   </a>
                 </div>
@@ -76,14 +83,14 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
                   <p>Até 40% OFF</p>
                 </div>
                 <div class="floating-card card-2">
-                  <div class="card-icon">💻</div>
-                  <h4>Eletrônicos</h4>
-                  <p>Ofertas especiais</p>
-                </div>
-                <div class="floating-card card-3">
                   <div class="card-icon">🎧</div>
                   <h4>Áudio</h4>
                   <p>Frete grátis</p>
+                </div>
+                <div class="floating-card card-3">
+                  <div class="card-icon">💻</div>
+                  <h4>Eletrônicos</h4>
+                  <p>Ofertas especiais</p>
                 </div>
               </div>
             </div>
@@ -91,13 +98,14 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
         </div>
       </header>
 
-      <!-- Categorias Populares -->
+      <!-- Resto do conteúdo permanece igual -->
       <section class="categories-section">
         <div class="container">
           <h2 class="section-title">Categorias populares</h2>
           <div class="categories-grid">
             <a *ngFor="let category of categories"
                [routerLink]="['/catalog']"
+               [queryParams]="{ category: category.name }"
                class="category-card">
               <div class="category-icon">{{ category.icon }}</div>
               <span class="category-name">{{ category.name }}</span>
@@ -106,7 +114,6 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
         </div>
       </section>
 
-      <!-- Ofertas em Destaque -->
       <section class="deals-section">
         <div class="container">
           <div class="section-header">
@@ -122,7 +129,7 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
                  [class.featured]="i === 0">
               <div class="deal-badge" *ngIf="deal.discount">{{ deal.discount }}</div>
               <div class="deal-image">
-                <img [src]="deal.image" [alt]="deal.name">
+                <img [src]="deal.image" [alt]="deal.name" loading="lazy">
               </div>
               <div class="deal-content">
                 <h3 class="deal-name">{{ deal.name }}</h3>
@@ -139,7 +146,7 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
                   <button class="buy-btn" (click)="addToCart(deal)">
                     Comprar agora
                   </button>
-                  <button class="cart-btn" (click)="addToCart(deal)">
+                  <button class="cart-btn" (click)="addToCart(deal)" title="Adicionar ao carrinho">
                     🛒
                   </button>
                 </div>
@@ -149,7 +156,6 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
         </div>
       </section>
 
-      <!-- Banner de Vantagens -->
       <section class="benefits-section">
         <div class="container">
           <div class="benefits-grid">
@@ -185,15 +191,14 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
         </div>
       </section>
 
-      <!-- Newsletter -->
       <section class="newsletter-section">
         <div class="container">
           <div class="newsletter-content">
             <h2>Não perca as melhores ofertas!</h2>
             <p>Cadastre-se e receba promoções exclusivas</p>
             <div class="newsletter-form">
-              <input type="email" placeholder="Seu e-mail" class="email-input">
-              <button class="subscribe-btn">Cadastrar</button>
+              <input type="email" placeholder="Seu e-mail" class="email-input" #emailInput>
+              <button class="subscribe-btn" (click)="subscribeNewsletter(emailInput.value)">Cadastrar</button>
             </div>
           </div>
         </div>
@@ -206,16 +211,10 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
       background: #f5f5f5;
     }
 
-    /* Header */
+    /* Header Principal Único */
     .main-header {
       background: linear-gradient(135deg, #2968c8 0%, #1e5bb7 100%);
       color: white;
-    }
-
-    .header-top {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      padding: 1rem 0;
     }
 
     .container {
@@ -224,11 +223,12 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
       padding: 0 2rem;
     }
 
-    .header-top .container {
+    .header-content {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 2rem;
+      padding: 1rem 0;
     }
 
     .logo-section {
@@ -283,9 +283,10 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
       background: #d0d0d0;
     }
 
-    .user-actions {
+    /* Menu Principal */
+    .main-nav {
       display: flex;
-      gap: 1.5rem;
+      gap: 2rem;
       align-items: center;
     }
 
@@ -298,6 +299,7 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
       font-weight: 500;
       transition: opacity 0.3s;
       position: relative;
+      padding: 0.5rem 0;
     }
 
     .nav-link:hover {
@@ -326,7 +328,8 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
 
     /* Hero Banner */
     .hero-banner {
-      padding: 4rem 0;
+      padding: 3rem 0;
+      background: linear-gradient(135deg, #2968c8 0%, #1e5bb7 100%);
     }
 
     .hero-content {
@@ -341,6 +344,7 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
       font-weight: 800;
       line-height: 1.1;
       margin-bottom: 1.5rem;
+      color: white;
     }
 
     .highlight {
@@ -355,6 +359,7 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
       opacity: 0.9;
       margin-bottom: 2.5rem;
       line-height: 1.6;
+      color: white;
     }
 
     .hero-actions {
@@ -420,6 +425,7 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
       text-align: center;
       transition: all 0.3s ease;
       color: #333;
+      min-width: 120px;
     }
 
     .floating-card:hover {
@@ -452,6 +458,7 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
     .floating-card h4 {
       margin: 0 0 0.5rem 0;
       font-weight: 600;
+      font-size: 1rem;
     }
 
     .floating-card p {
@@ -460,7 +467,7 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
       opacity: 0.7;
     }
 
-    /* Categorias */
+    /* Seções restantes */
     .categories-section {
       padding: 4rem 0;
       background: white;
@@ -510,7 +517,6 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
       text-align: center;
     }
 
-    /* Ofertas */
     .deals-section {
       padding: 4rem 0;
       background: #f8f9fa;
@@ -680,7 +686,6 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
       transform: scale(1.1);
     }
 
-    /* Benefícios */
     .benefits-section {
       padding: 4rem 0;
       background: white;
@@ -724,7 +729,6 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
       color: #666;
     }
 
-    /* Newsletter */
     .newsletter-section {
       padding: 4rem 0;
       background: linear-gradient(135deg, #2968c8 0%, #1e5bb7 100%);
@@ -777,7 +781,6 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
       background: #008c45;
     }
 
-    /* Animações */
     @keyframes float {
       0%, 100% {
         transform: translateY(0px);
@@ -789,13 +792,20 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
 
     /* Responsivo */
     @media (max-width: 768px) {
-      .header-top .container {
+      .header-content {
         flex-direction: column;
         gap: 1rem;
       }
 
       .search-section {
         max-width: 100%;
+        order: 2;
+        width: 100%;
+      }
+
+      .main-nav {
+        order: 3;
+        gap: 1.5rem;
       }
 
       .hero-content {
@@ -819,6 +829,15 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
 
       .floating-card {
         padding: 1rem;
+        min-width: 100px;
+      }
+
+      .floating-card h4 {
+        font-size: 0.9rem;
+      }
+
+      .floating-card p {
+        font-size: 0.8rem;
       }
 
       .deal-card.featured {
@@ -844,6 +863,28 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
     }
 
     @media (max-width: 480px) {
+      .header-content {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+
+      .logo-section {
+        order: 1;
+      }
+
+      .main-nav {
+        order: 2;
+        gap: 1rem;
+      }
+
+      .search-section {
+        order: 3;
+      }
+
+      .nav-link .nav-text {
+        display: none;
+      }
+
       .categories-grid {
         grid-template-columns: repeat(2, 1fr);
       }
@@ -858,12 +899,12 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
     }
   `]
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   private carrinhoService = inject(CarrinhoService);
 
   quantidadeItens = 0;
 
-  constructor() {
+  ngOnInit() {
     this.carrinhoService.carrinho$.subscribe(() => {
       this.quantidadeItens = this.carrinhoService.obterQuantidadeTotal();
     });
@@ -872,50 +913,99 @@ export class HomeComponent {
   categories = [
     { name: 'Celulares', icon: '📱' },
     { name: 'Eletrônicos', icon: '💻' },
+    { name: 'Áudio', icon: '🎧' },
     { name: 'Casa', icon: '🏠' },
     { name: 'Moda', icon: '👕' },
     { name: 'Esportes', icon: '⚽' },
     { name: 'Beleza', icon: '💄' },
-    { name: 'Livros', icon: '📚' },
-    { name: 'Brinquedos', icon: '🎮' }
+    { name: 'Livros', icon: '📚' }
   ];
 
   deals = [
     {
+      id: 1,
       name: 'Smartphone Android 128GB - Tela 6.7" - Câmera Tripla 48MP',
       currentPrice: 'R$ 1.299',
       originalPrice: 'R$ 1.599',
       discount: '19% OFF',
       freeShipping: true,
-      image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400'
+      image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400',
+      descricao: 'Smartphone Android com 128GB de armazenamento',
+      estoque: 10,
+      categoria: 'Celulares',
+      ativo: true
     },
     {
+      id: 2,
       name: 'Fone Bluetooth Cancelamento de Ruído Ativo - 30h Bateria',
       currentPrice: 'R$ 299',
       originalPrice: 'R$ 399',
       discount: '25% OFF',
       freeShipping: true,
-      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400'
+      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400',
+      descricao: 'Fone Bluetooth com cancelamento de ruído ativo',
+      estoque: 15,
+      categoria: 'Áudio',
+      ativo: true
     },
     {
+      id: 3,
       name: 'Notebook Gamer RTX 3050 - 16GB RAM - SSD 512GB',
       currentPrice: 'R$ 4.599',
       originalPrice: 'R$ 5.199',
       discount: '12% OFF',
       freeShipping: true,
-      image: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400'
+      image: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400',
+      descricao: 'Notebook Gamer com RTX 3050',
+      estoque: 5,
+      categoria: 'Eletrônicos',
+      ativo: true
     },
     {
+      id: 4,
       name: 'Smart TV 55" 4K UHD - Android TV - 3 HDMI',
       currentPrice: 'R$ 2.399',
       originalPrice: 'R$ 2.899',
       discount: '17% OFF',
       freeShipping: true,
-      image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=400'
+      image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=400',
+      descricao: 'Smart TV 55" 4K UHD com Android TV',
+      estoque: 8,
+      categoria: 'Eletrônicos',
+      ativo: true
     }
   ];
 
-  addToCart(product: any): void {
-    alert(`${product.name} adicionado ao carrinho!`);
+  addToCart(deal: any): void {
+    const produto: Produto = {
+      id: deal.id,
+      nome: deal.name,
+      descricao: deal.descricao,
+      preco: this.extractPrice(deal.currentPrice),
+      estoque: deal.estoque,
+      categoria: deal.categoria,
+      imagemUrl: deal.image,
+      ativo: deal.ativo
+    };
+
+    this.carrinhoService.adicionarAoCarrinho(produto);
+  }
+
+  subscribeNewsletter(email: string): void {
+    if (email && this.isValidEmail(email)) {
+      alert(`Obrigado por se cadastrar com o email: ${email}`);
+    } else {
+      alert('Por favor, insira um email válido.');
+    }
+  }
+
+  private extractPrice(priceString: string): number {
+    const numericString = priceString.replace(/[^\d,]/g, '').replace(',', '.');
+    return parseFloat(numericString) || 0;
+  }
+
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 }

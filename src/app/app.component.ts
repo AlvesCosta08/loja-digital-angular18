@@ -11,32 +11,6 @@ import { CarrinhoService } from './core/services/carrinho.service';
   imports: [CommonModule, RouterModule],
   template: `
     <div class="app-container">
-      <header class="app-header">
-        <div class="header-content">
-          <a routerLink="/home" class="logo">🛍️ Loja Digital</a>
-
-          <nav class="nav">
-            <a routerLink="/catalog" class="nav-link">Produtos</a>
-
-            <!-- Indicador do Carrinho -->
-            <a routerLink="/cart" class="cart-indicator" *ngIf="quantidadeItens > 0">
-              🛒 {{ quantidadeItens }}
-            </a>
-
-            <!-- Usuário logado -->
-            <div *ngIf="authService.estaAutenticado()" class="user-menu">
-              <span class="user-greeting">Olá, {{ authService.getUsuarioAtual()?.nome }}</span>
-              <button (click)="logout()" class="btn-logout">Sair</button>
-            </div>
-
-            <!-- Usuário não logado -->
-            <div *ngIf="!authService.estaAutenticado()" class="auth-links">
-              <a routerLink="/login" class="nav-link">Login</a>
-              <a routerLink="/register" class="nav-link">Registrar</a>
-            </div>
-          </nav>
-        </div>
-      </header>
 
       <main class="main-content">
         <router-outlet></router-outlet>
