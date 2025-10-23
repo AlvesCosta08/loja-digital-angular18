@@ -118,4 +118,4 @@ LOJA-DIGITAL-FRONTEND/
 ├── tsconfig.json              ← Configuração TypeScript raiz
 └── tsconfig.spec.json         ← Configuração TypeScript para testese
 ```
-# loja-digital-angular18
+
